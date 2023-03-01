@@ -1,0 +1,13 @@
+#root {
+  height: 100%;
+  
+}
+
+.vkuiPanel .vkuiPanel__in {
+  background-color: #5663D8 !important;
+}
+
+* {
+  max-width: 1000px;
+  box-sizing: border-box;
+}
