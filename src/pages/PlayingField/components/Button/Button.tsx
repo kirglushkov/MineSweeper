@@ -71,7 +71,12 @@ const Button = ({ data, img }) => {
       onClick={(e) => {
         e.preventDefault()
         handleClick(e)
-        console.log(data)
+        // dispatch and update state of field
+
+        // todo: if mine is revealed, and not flagged = you lose
+        // todo: dispatch flagged, if flagged thus you destroy min
+        // todo: open fields without mines?
+        console.log(data.x, data.y)
       }}
       onContextMenu={(e) => {
         e.preventDefault()

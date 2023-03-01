@@ -3,14 +3,6 @@ import { createSlice } from '@reduxjs/toolkit'
 const Rows = 16
 const Columns = 16
 
-const Bombs = Math.random() * 0.2 * Rows * Columns
-
-for (let i = 0; i < Bombs; i++) {
-  const row = Math.floor(Math.random() * Rows)
-  const column = Math.floor(Math.random() * Columns)
-  const index = row * Columns + column
-}
-
 const board = []
 
 for (let x=0; x<Rows; x++) {
@@ -22,7 +14,6 @@ for (let x=0; x<Rows; x++) {
       isBomb: Math.random() < 0.2 ? true : false,
       isRevealed: false,
       isFlagged: false,
-      adjacentBombs: 0,
     }
     row.push(tile)
   }
@@ -43,11 +34,26 @@ export const ArraySlice = createSlice({
   name: 'MineSweeper',
   initialState: initialState,
   reducers: {
-    setUpField: (state, action) => {
+    updateField: (state, action) => {
+      return {
+        ...state,
+        FieldValues: state.FieldValues.map((row) => {
+          return row.map((field) => {
+            if (field.x === action.payload.x && field.y === action.payload.y) {
+              return {
+                ...field,
+                isRevealed: true,
+                isFlagged: action.payload.isFlagged,
+              }
+            }
+            return field
+          })
+        }),
+      }
     },
   },
 })
 
-export const { setUpField } = ArraySlice.actions
+export const { updateField } = ArraySlice.actions
 
 export default ArraySlice.reducer
