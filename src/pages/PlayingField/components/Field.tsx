@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 // import Button from './Button/Logic'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 // import { checkWinner } from '@/utils/checkWinner'
 import { RootState } from '@/store/app'
 import { useEffect, useState } from 'react'
@@ -12,28 +12,34 @@ import Defused from '@/assets/blocks/defused.png'
 import DefaultBlock from '@/assets/blocks/default.png'
 import { Div } from '@vkontakte/vkui'
 import numbers from '@/assets/blocks/numbers'
+import Smile from './Smile'
+import Timer from './Timer'
+import { restart } from '@/store/win'
+import Number from './Number'
+import Header from './Header'
+const PADDING = 14
 
+const OUTLINE = '4px inset #f3f3f3'
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(16, 1fr);
 
   width: 100%;
   height: 100%;
+  outline: ${OUTLINE};
 `
 
 const WhiteBoard = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(100vw - 20px);
-  height: calc(100vw - 30px);
-  background-color: white;
+  width: calc(100dvw - 20px);
+  height: calc(100dvw - 30px);
+  background-color: #bdbdbd;
 
-  border: 2px solid #000000;
-  box-shadow: 0px 4px 0px #000000;
-  border-radius: 10px;
   max-width: calc(550px * 1.08);
   max-height: 550px;
+  padding: ${PADDING}px;
 
   @media (max-width: 350px) {
     height: calc(100vw - 50px);
@@ -43,19 +49,19 @@ const Union = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  outline: 4px outset #d5d4d4;
 `
-
+export const TIME = 60
 const Field = () => {
   const { FieldValues } = useSelector((state: RootState) => state.updateField)
-  const { value } = useSelector((state: RootState) => state.DecreaseBombCount)
   const Board = FieldValues
-  console.log(Board)
-
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(restart())
+  }, [])
   return (
     <Union>
-      <Div>
-        <h1>{value}</h1>
-      </Div>
+      <Header />
       <WhiteBoard>
         <Grid>
           {Board.map((row, i) => {
@@ -69,9 +75,9 @@ const Field = () => {
                   img={
                     data.isBomb && data.isFlagged && data.isRevealed
                       ? Defused
-                      : data.isBomb && data.isRevealed
+                      : data.isBomb && data.isRevealed && data.detonated
                       ? Detonating
-                      : data.isBomb
+                      : data.isBomb && data.isRevealed
                       ? Mine
                       : data.isRevealed
                       ? Unlock

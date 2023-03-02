@@ -5,9 +5,15 @@ import Unlock from '@/assets/blocks/unLock.png'
 import markFlag from '@/assets/blocks/markFlag.png'
 import markQuest from '@/assets/blocks/markQuest.png'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateField, updateValue } from '@/store/mineSweeperLogic'
+import {
+  revealMines,
+  updateDetonation,
+  updateField,
+  updateValue,
+} from '@/store/mineSweeperLogic'
 import { DecreaseBombCount } from '@/store/bomb'
 import { RootState } from '@/store/app'
+import { afraid, lose, restart, start } from '@/store/win'
 
 const Wrapper = styled.button<{
   rightClicked?: boolean
@@ -34,12 +40,22 @@ const Wrapper = styled.button<{
   background-repeat: no-repeat;
   background-size: 100%;
 `
-// type Props = {
-//   data: {
-//     x: number
-//     y: number
-//     bomb: boolean
-//   }
+type Data = {
+  x: number
+  y: number
+  isBomb: boolean
+  isRevealed: boolean
+  isFlagged: boolean
+  value: number
+  detonated: boolean
+}
+type Props = {
+  data: Data
+  img: string
+  isRevealedAlready: boolean
+  value: string
+}
+type Board = RootState['updateField']['FieldValues']
 
 const Button = ({ data, img, isRevealedAlready, value }: Props) => {
   const [leftClicked, setLeftClicked] = React.useState(false)
@@ -53,18 +69,20 @@ const Button = ({ data, img, isRevealedAlready, value }: Props) => {
   function CheckBombIsRevealed(
     bomb: boolean,
     revealed: boolean,
-    flagged: boolean
+    flagged: boolean,
+    { x, y }: { x: number; y: number }
   ) {
     if (bomb && !revealed) {
       dispatch(DecreaseBombCount())
       if (!flagged) {
-        alert('you lose')
-        console.log('you lose')
+        dispatch(lose())
+        dispatch(revealMines())
+        dispatch(updateDetonation({ x: x, y: y }))
       }
     }
   }
   const HiddenDiv = styled.div`
-    display: ${leftClicked ? 'block' : 'none'};
+    display: ${leftClicked || isRevealedAlready ? 'block' : 'none'};
     position: relative;
     background-position: center;
     width: 100%;
@@ -91,7 +109,7 @@ const Button = ({ data, img, isRevealedAlready, value }: Props) => {
       background-size: 100%;
     }
   `
-  function nearbyTiles(board, { x, y }) {
+  function nearbyTiles(board: Board, { x, y }: { x: number; y: number }) {
     const tiles = []
 
     for (let i = -1; i <= 1; i++) {
@@ -103,7 +121,7 @@ const Button = ({ data, img, isRevealedAlready, value }: Props) => {
     return tiles
   }
 
-  function revealTile(board, tile) {
+  function revealTile(board: Board, tile: Data) {
     if (tile.isBomb) return
     if (tile.isRevealed) return
     const NearbyTiles = nearbyTiles(board, { x: tile.x, y: tile.y })
@@ -134,23 +152,9 @@ const Button = ({ data, img, isRevealedAlready, value }: Props) => {
       dispatch(updateValue({ x: tile.x, y: tile.y, value: mines.length }))
       return
     }
-    // todo: if isRevealed show value of bombs nearby
-
-    if (!tile.isRevealed) return
-    if (tile.isBomb) return
   }
 
-  function handleClick(
-    e: React.MouseEvent<HTMLButtonElement>,
-    data: {
-      x: number
-      y: number
-      isBomb: boolean
-      isRevealed: boolean
-      isFlagged: boolean
-      value: number
-    }
-  ) {
+  function handleClick(e: React.MouseEvent<HTMLButtonElement>, data: Data) {
     if (data.isRevealed) return
     // if left click
     // reveal = true
@@ -167,7 +171,10 @@ const Button = ({ data, img, isRevealedAlready, value }: Props) => {
         })
       )
       revealTile(Board, data)
-      CheckBombIsRevealed(data.isBomb, data.isRevealed, data.isFlagged)
+      CheckBombIsRevealed(data.isBomb, data.isRevealed, data.isFlagged, {
+        x: data.x,
+        y: data.y,
+      })
       // if right click
       // reveal = false
       // flagged = true

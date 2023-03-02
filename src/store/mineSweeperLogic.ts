@@ -5,11 +5,11 @@ const Columns = 16
 
 const board = []
 
-export let Bombs = 0;
+export let Bombs = 0
 
-for (let x=0; x<Rows; x++) {
+for (let x = 0; x < Rows; x++) {
   const row = []
-  for (let y=0; y<Columns; y++) {
+  for (let y = 0; y < Columns; y++) {
     const tile = {
       x,
       y,
@@ -17,6 +17,7 @@ for (let x=0; x<Rows; x++) {
       isRevealed: false,
       isFlagged: false,
       value: 0,
+      detonated: false,
     }
     if (Bombs > 39) {
       tile['isBomb'] = false
@@ -34,7 +35,6 @@ export const initialState = {
   FieldValues: board,
 }
 
-
 export type FieldValues = typeof initialState.FieldValues
 
 export const ArraySlice = createSlice({
@@ -46,7 +46,7 @@ export const ArraySlice = createSlice({
         ...state,
         FieldValues: state.FieldValues.map((row) => {
           return row.map((field) => {
-            if ((field.x === action.payload.x) && (field.y === action.payload.y)) {
+            if (field.x === action.payload.x && field.y === action.payload.y) {
               return {
                 ...field,
                 isRevealed: action.payload.isRevealed,
@@ -63,7 +63,7 @@ export const ArraySlice = createSlice({
         ...state,
         FieldValues: state.FieldValues.map((row) => {
           return row.map((field) => {
-            if ((field.x === action.payload.x) && (field.y === action.payload.y)) {
+            if (field.x === action.payload.x && field.y === action.payload.y) {
               return {
                 ...field,
                 value: action.payload.value,
@@ -73,12 +73,45 @@ export const ArraySlice = createSlice({
           })
         }),
       }
-    }
+    },
+    revealMines: (state) => {
+      return {
+        ...state,
+        FieldValues: state.FieldValues.map((row) => {
+          return row.map((field) => {
+            if (field.isBomb) {
+              return {
+                ...field,
+                isRevealed: true,
+              }
+            }
+            return field
+          })
+        }),
+      }
+    },
+
+    updateDetonation: (state, action) => {
+      return {
+        ...state,
+        FieldValues: state.FieldValues.map((row) => {
+          return row.map((field) => {
+            if (field.x === action.payload.x && field.y === action.payload.y) {
+              return {
+                ...field,
+                detonated: true,
+              }
+            }
+            return field
+          })
+        }),
+      }
+    },
   },
 })
 
-export const { updateField, updateValue } = ArraySlice.actions
+export const { updateField, updateValue, revealMines, updateDetonation } =
+  ArraySlice.actions
 
-const ArrayReducer = ArraySlice.reducer;
+const ArrayReducer = ArraySlice.reducer
 export default ArrayReducer
-
