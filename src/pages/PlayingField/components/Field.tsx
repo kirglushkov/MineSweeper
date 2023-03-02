@@ -14,9 +14,10 @@ import { Div } from '@vkontakte/vkui'
 import numbers from '@/assets/blocks/numbers'
 import Smile from './Smile'
 import Timer from './Timer'
-import { restart } from '@/store/win'
+import { lose, restart } from '@/store/win'
 import Number from './Number'
 import Header from './Header'
+import { revealMines } from '@/store/mineSweeperLogic'
 const PADDING = 14
 
 const OUTLINE = '4px inset #f3f3f3'
@@ -58,16 +59,33 @@ const Field = () => {
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(restart())
+
+    const TimeOut = setTimeout(() => {
+      setSmile('lose')
+      dispatch(lose())
+      dispatch(revealMines())
+    }, TIME * 1000)
+
+    return () => {
+      clearInterval(TimeOut)
+    }
   }, [])
+
+  const [smile, setSmile] = useState<null | string>(null)
+
+  function ChangeSmile(x: string) {
+    return setSmile(x)
+  }
   return (
     <Union>
-      <Header />
+      <Header smile={smile} />
       <WhiteBoard>
         <Grid>
           {Board.map((row, i) => {
             return row.map((data, j) => {
               return (
                 <Button
+                  changeSmile={ChangeSmile}
                   key={`${i}${j}`}
                   data={data}
                   value={numbers[+data.value as keyof typeof numbers]}

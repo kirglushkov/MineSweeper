@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from '@emotion/styled'
 import DefaultBlock from '@/assets/blocks/default.png'
 import Unlock from '@/assets/blocks/unLock.png'
@@ -13,7 +13,7 @@ import {
 } from '@/store/mineSweeperLogic'
 import { DecreaseBombCount } from '@/store/bomb'
 import { RootState } from '@/store/app'
-import { afraid, lose, restart, start } from '@/store/win'
+import { lose } from '@/store/win'
 
 const Wrapper = styled.button<{
   rightClicked?: boolean
@@ -54,17 +54,24 @@ type Props = {
   img: string
   isRevealedAlready: boolean
   value: string
+  changeSmile: (x: string) => void
 }
 type Board = RootState['updateField']['FieldValues']
 
-const Button = ({ data, img, isRevealedAlready, value }: Props) => {
+const Button = ({
+  data,
+  img,
+  isRevealedAlready,
+  value,
+  changeSmile,
+}: Props) => {
   const [leftClicked, setLeftClicked] = React.useState(false)
   const [rightClicked, setRightClicked] = React.useState(false)
   const [doubleRight, setDoubleRight] = React.useState(false)
   const dispatch = useDispatch()
-
   const { FieldValues } = useSelector((state: RootState) => state.updateField)
   const Board = FieldValues
+  const { value: winValue }: any = useSelector((state: RootState) => state.win)
 
   function CheckBombIsRevealed(
     bomb: boolean,
@@ -75,6 +82,7 @@ const Button = ({ data, img, isRevealedAlready, value }: Props) => {
     if (bomb && !revealed) {
       dispatch(DecreaseBombCount())
       if (!flagged) {
+        changeSmile('lose')
         dispatch(lose())
         dispatch(revealMines())
         dispatch(updateDetonation({ x: x, y: y }))
@@ -212,11 +220,33 @@ const Button = ({ data, img, isRevealedAlready, value }: Props) => {
       doubleClicked={doubleRight}
       onClick={(e) => {
         e.preventDefault()
-        handleClick(e, data)
+        if (winValue !== 'lose') {
+          handleClick(e, data)
+        }
       }}
       onContextMenu={(e) => {
         e.preventDefault()
-        handleClick(e, data)
+        if (winValue !== 'lose') {
+          handleClick(e, data)
+        }
+      }}
+      onMouseUp={(e) => {
+        e.preventDefault()
+        if (winValue !== 'lose') {
+          changeSmile('restart')
+        }
+      }}
+      onMouseDown={(e) => {
+        e.preventDefault()
+        if (winValue !== 'lose') {
+          changeSmile('afraid')
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.preventDefault()
+        if (winValue !== 'lose') {
+          changeSmile('restart')
+        }
       }}
     >
       <HiddenDiv>

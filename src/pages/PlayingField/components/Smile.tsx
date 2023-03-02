@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import smiles from '@/assets/smiles'
 import styled from '@emotion/styled'
 import { useDispatch, useSelector } from 'react-redux'
@@ -24,7 +24,7 @@ const StyledButton = styled.button`
  * "afraid" | "lose" | "default" | "winner" | "restart"
  */
 
-const Smile = () => {
+const Smile = ({ smile = null }) => {
   const { value: winValue }: any = useSelector((state: RootState) => state.win)
   const { value } = useSelector((state: RootState) => state.DecreaseBombCount)
   const dispatch = useDispatch()
@@ -52,7 +52,12 @@ const Smile = () => {
         dispatch(start())
       }}
     >
-      <Image src={smiles[winValue as keyof typeof smiles]} alt="smile" />
+      {smile === null && (
+        <Image src={smiles[winValue as keyof typeof smiles]} alt="smile" />
+      )}
+      {smile !== null && (
+        <Image src={smiles[smile as keyof typeof smiles]} alt="smile" />
+      )}
     </StyledButton>
   )
 }

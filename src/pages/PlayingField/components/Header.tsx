@@ -24,12 +24,12 @@ const Stack = styled.div`
   padding: ${PADDING - 4}px;
 `
 
-const Header = () => {
+const Header = ({ smile }) => {
   return (
     <Wrapper>
       <Stack>
         <Number />
-        <Smile />
+        <Smile smile={smile} />
         <Timer />
       </Stack>
     </Wrapper>

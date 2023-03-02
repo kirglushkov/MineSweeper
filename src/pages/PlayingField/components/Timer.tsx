@@ -1,8 +1,9 @@
 import digits from '@/assets/digits'
 import { RootState } from '@/store/app'
+import { lose } from '@/store/win'
 import styled from '@emotion/styled'
-import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { TIME } from './Field'
 
 type Props = {}
@@ -22,6 +23,8 @@ const Wrapper = styled.div`
 const Timer = (props: Props) => {
   const { value: winValue }: any = useSelector((state: RootState) => state.win)
   const [time, setTime] = useState(TIME)
+  const dispatch = useDispatch()
+
   useEffect(() => {
     if (time > 0) {
       const timer = setInterval(() => {
@@ -35,6 +38,16 @@ const Timer = (props: Props) => {
   }, [])
 
   if (winValue === 'lose') {
+    return (
+      <Wrapper>
+        <img src={digits[0 as keyof typeof digits]}></img>
+        <img src={digits[0 as keyof typeof digits]}></img>
+      </Wrapper>
+    )
+  }
+
+  if (time == 0) {
+    dispatch(lose())
     return (
       <Wrapper>
         <img src={digits[0 as keyof typeof digits]}></img>
