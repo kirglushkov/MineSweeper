@@ -5,6 +5,13 @@ import { useSelector } from 'react-redux'
 import { RootState } from '@/store/app'
 import { useEffect, useState } from 'react'
 import Button from './Button/Button'
+import Detonating from '@/assets/blocks/detonating.png'
+import Unlock from '@/assets/blocks/unLock.png'
+import Mine from '@/assets/blocks/mine.png'
+import Defused from '@/assets/blocks/defused.png'
+import DefaultBlock from '@/assets/blocks/default.png'
+import { Div } from '@vkontakte/vkui'
+import numbers from '@/assets/blocks/numbers'
 
 const Grid = styled.div`
   display: grid;
@@ -32,8 +39,6 @@ const WhiteBoard = styled.div`
     height: calc(100vw - 50px);
   }
 `
-import Unlock from '@/assets/blocks/unLock.png'
-import Mine from '@/assets/blocks/mine.png'
 const Union = styled.div`
   display: flex;
   flex-direction: column;
@@ -41,11 +46,16 @@ const Union = styled.div`
 `
 
 const Field = () => {
-  const { FieldValues } = useSelector((state: RootState) => state.setUpField)
-  const Board = FieldValues.board
+  const { FieldValues } = useSelector((state: RootState) => state.updateField)
+  const { value } = useSelector((state: RootState) => state.DecreaseBombCount)
+  const Board = FieldValues
+  console.log(Board)
 
   return (
     <Union>
+      <Div>
+        <h1>{value}</h1>
+      </Div>
       <WhiteBoard>
         <Grid>
           {Board.map((row, i) => {
@@ -54,7 +64,19 @@ const Field = () => {
                 <Button
                   key={`${i}${j}`}
                   data={data}
-                  img={data.isBomb ? Mine : Unlock}
+                  value={numbers[+data.value as keyof typeof numbers]}
+                  isRevealedAlready={data.isRevealed}
+                  img={
+                    data.isBomb && data.isFlagged && data.isRevealed
+                      ? Defused
+                      : data.isBomb && data.isRevealed
+                      ? Detonating
+                      : data.isBomb
+                      ? Mine
+                      : data.isRevealed
+                      ? Unlock
+                      : DefaultBlock
+                  }
                 />
               )
             })

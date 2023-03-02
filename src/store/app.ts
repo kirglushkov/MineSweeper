@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import ArraySlice from './mineSweeperLogic'
+import MineSlice from './bomb'
 
 
 const store = configureStore({
   reducer: {
-    setUpField: ArraySlice,
+    updateField: ArraySlice,    
+    DecreaseBombCount: MineSlice,
   },
 })
 

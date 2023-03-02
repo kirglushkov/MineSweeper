@@ -5,6 +5,8 @@ const Columns = 16
 
 const board = []
 
+export let Bombs = 0;
+
 for (let x=0; x<Rows; x++) {
   const row = []
   for (let y=0; y<Columns; y++) {
@@ -14,19 +16,24 @@ for (let x=0; x<Rows; x++) {
       isBomb: Math.random() < 0.2 ? true : false,
       isRevealed: false,
       isFlagged: false,
+      value: 0,
     }
+    if (Bombs > 39) {
+      tile['isBomb'] = false
+    }
+    if (tile.isBomb) {
+      Bombs++
+    }
+
     row.push(tile)
   }
   board.push(row)
 }
 
 export const initialState = {
-  FieldValues: {
-    board: board,
-    isGameOver: false,
-    isGameWon: false,
-  }
+  FieldValues: board,
 }
+
 
 export type FieldValues = typeof initialState.FieldValues
 
@@ -39,10 +46,10 @@ export const ArraySlice = createSlice({
         ...state,
         FieldValues: state.FieldValues.map((row) => {
           return row.map((field) => {
-            if (field.x === action.payload.x && field.y === action.payload.y) {
+            if ((field.x === action.payload.x) && (field.y === action.payload.y)) {
               return {
                 ...field,
-                isRevealed: true,
+                isRevealed: action.payload.isRevealed,
                 isFlagged: action.payload.isFlagged,
               }
             }
@@ -51,9 +58,27 @@ export const ArraySlice = createSlice({
         }),
       }
     },
+    updateValue: (state, action) => {
+      return {
+        ...state,
+        FieldValues: state.FieldValues.map((row) => {
+          return row.map((field) => {
+            if ((field.x === action.payload.x) && (field.y === action.payload.y)) {
+              return {
+                ...field,
+                value: action.payload.value,
+              }
+            }
+            return field
+          })
+        }),
+      }
+    }
   },
 })
 
-export const { updateField } = ArraySlice.actions
+export const { updateField, updateValue } = ArraySlice.actions
 
-export default ArraySlice.reducer
+const ArrayReducer = ArraySlice.reducer;
+export default ArrayReducer
+
