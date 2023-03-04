@@ -1,3 +1,4 @@
+import ClickSlice from './firstClick';
 import winSlice from './win';
 import { configureStore } from '@reduxjs/toolkit'
 import ArraySlice from './mineSweeperLogic'
@@ -8,10 +9,11 @@ const store = configureStore({
   reducer: {
     updateField: ArraySlice,    
     DecreaseBombCount: MineSlice,
+    clickedFirst: ClickSlice,
     win: winSlice,
     lose: winSlice,
     restart: winSlice,
-    afraid: winSlice,
+    start: winSlice,
   },
 })
 

@@ -1,6 +1,8 @@
 import React from 'react'
 import Field from './components/Field'
 import styled from '@emotion/styled'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/app'
 
 const Container = styled.main`
   display: flex;

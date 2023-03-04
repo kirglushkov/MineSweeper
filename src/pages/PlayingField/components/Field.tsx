@@ -1,7 +1,5 @@
 import styled from '@emotion/styled'
-// import Button from './Button/Logic'
 import { useDispatch, useSelector } from 'react-redux'
-// import { checkWinner } from '@/utils/checkWinner'
 import { RootState } from '@/store/app'
 import { useEffect, useState } from 'react'
 import Button from './Button/Button'
@@ -10,12 +8,9 @@ import Unlock from '@/assets/blocks/unLock.png'
 import Mine from '@/assets/blocks/mine.png'
 import Defused from '@/assets/blocks/defused.png'
 import DefaultBlock from '@/assets/blocks/default.png'
-import { Div } from '@vkontakte/vkui'
 import numbers from '@/assets/blocks/numbers'
-import Smile from './Smile'
-import Timer from './Timer'
-import { lose, restart } from '@/store/win'
-import Number from './Number'
+import { lose, restart, winner } from '@/store/win'
+
 import Header from './Header'
 import { revealMines } from '@/store/mineSweeperLogic'
 const PADDING = 14
@@ -55,8 +50,28 @@ const Union = styled.div`
 export const TIME = 60
 const Field = () => {
   const { FieldValues } = useSelector((state: RootState) => state.updateField)
+  const [smile, setSmile] = useState<null | string>(null)
   const Board = FieldValues
   const dispatch = useDispatch()
+
+  function checkWinner(Board: any[]) {
+    const WinArray = Board.flat().filter(
+      (x: any) => x.isBomb === false && x.isRevealed === true
+    )
+    if (WinArray.length === 16 * 16 - 40) {
+      return true
+    }
+  }
+  const Check = checkWinner(Board)
+
+  useEffect(() => {
+    if (Check) {
+      setSmile('winner')
+      dispatch(winner())
+      dispatch(revealMines())
+    }
+  }, [Check])
+
   useEffect(() => {
     dispatch(restart())
 
@@ -71,8 +86,6 @@ const Field = () => {
     }
   }, [])
 
-  const [smile, setSmile] = useState<null | string>(null)
-
   function ChangeSmile(x: string) {
     return setSmile(x)
   }
@@ -85,7 +98,7 @@ const Field = () => {
             return row.map((data, j) => {
               return (
                 <Button
-                  changeSmile={ChangeSmile}
+                  changeSmile={smile != 'winner' ? ChangeSmile : () => {}}
                   key={`${i}${j}`}
                   data={data}
                   value={numbers[+data.value as keyof typeof numbers]}

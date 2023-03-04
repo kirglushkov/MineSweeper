@@ -37,7 +37,7 @@ const Timer = (props: Props) => {
     }
   }, [])
 
-  if (winValue === 'lose') {
+  if (winValue === 'lose' || winValue === 'winner') {
     return (
       <Wrapper>
         <img src={digits[0 as keyof typeof digits]}></img>

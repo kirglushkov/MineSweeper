@@ -3,7 +3,6 @@ import { AppRoot, SplitLayout, SplitCol, View, Panel } from '@vkontakte/vkui'
 import '@vkontakte/vkui/dist/vkui.css'
 
 import PlayingField from '@/pages/PlayingField'
-
 const App = () => {
   return (
     <AppRoot>

@@ -7,6 +7,7 @@ import markQuest from '@/assets/blocks/markQuest.png'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   revealMines,
+  updateBomb,
   updateDetonation,
   updateField,
   updateValue,
@@ -14,6 +15,7 @@ import {
 import { DecreaseBombCount } from '@/store/bomb'
 import { RootState } from '@/store/app'
 import { lose } from '@/store/win'
+import { FirstClicked } from '@/store/firstClick'
 
 const Wrapper = styled.button<{
   rightClicked?: boolean
@@ -72,6 +74,7 @@ const Button = ({
   const { FieldValues } = useSelector((state: RootState) => state.updateField)
   const Board = FieldValues
   const { value: winValue }: any = useSelector((state: RootState) => state.win)
+  const { clicked }: any = useSelector((state: RootState) => state.clickedFirst)
 
   function CheckBombIsRevealed(
     bomb: boolean,
@@ -139,11 +142,34 @@ const Button = ({
         const NearbyTilesTwo = nearbyTiles(board, { x: t.x, y: t.y })
         const mmines = NearbyTilesTwo.filter((t) => t.isBomb)
         if (mmines.length === 0) {
-          NearbyTilesTwo.forEach((t) => {
+          NearbyTilesTwo.forEach((ti) => {
+            const NearbyTilesThree = nearbyTiles(board, { x: ti.x, y: ti.y })
+            const MinesTi = NearbyTilesThree.filter((t) => t.isBomb)
+            if (MinesTi.length === 0) {
+              NearbyTilesThree.forEach((tiles) => {
+                dispatch(
+                  updateField({
+                    x: tiles.x,
+                    y: tiles.y,
+                    isRevealed: true,
+                    isFlagged: false,
+                  })
+                )
+              })
+            } else {
+              dispatch(
+                updateValue({
+                  x: ti.x,
+                  y: ti.y,
+                  value: MinesTi.length,
+                })
+              )
+              return
+            }
             dispatch(
               updateField({
-                x: t.x,
-                y: t.y,
+                x: ti.x,
+                y: ti.y,
                 isRevealed: true,
                 isFlagged: false,
               })
@@ -151,6 +177,7 @@ const Button = ({
           })
         } else {
           dispatch(updateValue({ x: t.x, y: t.y, value: mines.length }))
+          return
         }
         dispatch(
           updateField({ x: t.x, y: t.y, isRevealed: true, isFlagged: false })
@@ -169,6 +196,25 @@ const Button = ({
     // flagges = false
     if (e.button === 0) {
       setLeftClicked(true)
+      if (!clicked) {
+        dispatch(FirstClicked(true))
+        if (data.isBomb) {
+          dispatch(
+            updateBomb({
+              x: data.x,
+              y: data.y,
+              isBomb: false,
+            })
+          )
+          dispatch(
+            updateBomb({
+              x: 15,
+              y: 15,
+              isBomb: true,
+            })
+          )
+        }
+      }
       dispatch(
         updateField({
           x: data.x,
@@ -179,10 +225,13 @@ const Button = ({
         })
       )
       revealTile(Board, data)
-      CheckBombIsRevealed(data.isBomb, data.isRevealed, data.isFlagged, {
-        x: data.x,
-        y: data.y,
-      })
+      if (clicked) {
+        CheckBombIsRevealed(data.isBomb, data.isRevealed, data.isFlagged, {
+          x: data.x,
+          y: data.y,
+        })
+      }
+
       // if right click
       // reveal = false
       // flagged = true

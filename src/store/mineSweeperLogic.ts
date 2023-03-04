@@ -58,6 +58,22 @@ export const ArraySlice = createSlice({
         }),
       }
     },
+    updateBomb: (state, action) => {
+      return {
+        ...state,
+        FieldValues: state.FieldValues.map((row) => {
+          return row.map((field) => {
+            if (field.x === action.payload.x && field.y === action.payload.y) {
+              return {
+                ...field,
+                isBomb: action.payload.isBomb,
+              }
+            }
+            return field
+          })
+        }),
+      }
+    },
     updateValue: (state, action) => {
       return {
         ...state,
@@ -110,7 +126,7 @@ export const ArraySlice = createSlice({
   },
 })
 
-export const { updateField, updateValue, revealMines, updateDetonation } =
+export const { updateField, updateValue, revealMines, updateDetonation, updateBomb } =
   ArraySlice.actions
 
 const ArrayReducer = ArraySlice.reducer
